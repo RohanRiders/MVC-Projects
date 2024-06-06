@@ -11,12 +11,14 @@ namespace MVCProject1.Controllers
     {
         public ActionResult Index()
         {
+            //MVC Part Four in The Tech Academy tutorial covers this. 
             User user = new User();
             user.Id = 1;
             user.FirstName = "Trason";
             user.LastName = "Carver";
             user.Age = 32;
 
+            //whatever you pass here is a model.
             return View(user);
         }
 
