@@ -1,4 +1,5 @@
 ﻿using NewsletterAppMVC.Models;
+using NewsletterAppMVC.ViewModels;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -64,7 +65,7 @@ namespace NewsletterAppMVC.Controllers
         {
             //we want to reach into the database and present the data to the user front end using ADO.NET
             //Here we are defining the sql query
-            string queryString = @"SELECT Id, FirstName, LastName, EmailAddress from SignUps";
+            string queryString = @"SELECT Id, FirstName, LastName, EmailAddress, SocialSecurityNumber from SignUps";
             //Here we are creating a list called "signups" with a data type of NewsLetterSignUp
             List<NewsletterSignUp> signups = new List<NewsletterSignUp>();
 
@@ -93,12 +94,25 @@ namespace NewsletterAppMVC.Controllers
                     signup.LastName = reader["LastName"].ToString();
                     //Same here
                     signup.EmailAddress = reader["EmailAddress"].ToString();
+                    //Same applies here
+                    signup.SocialSecurityNumber = reader["SocialSecurityNumber"].ToString();
                     //Once all the properties have been set we are adding those to the signup list object. 
                     signups.Add(signup);
 
                 }
-            }
-            return View(signups);
+
+                var signupVms = new List<SignupVm>();
+                foreach (var signup in signups)
+                { 
+                    //Here we are mapping properties between two objects. There are libraries (auto mapper) that do this for you which are called "Reflecting" which can have a lot of overhead. 
+                    var signupVm = new SignupVm();
+                    signupVm.FirstName = signup.FirstName;
+                    signupVm.LastName = signup.LastName;
+                    signupVm.EmailAddress = signup.EmailAddress;
+                    signupVms.Add(signupVm);
+                }
+                return View(signupVms);
+            }    
         }
     }
 }
