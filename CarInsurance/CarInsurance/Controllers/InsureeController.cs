@@ -17,7 +17,7 @@ namespace CarInsurance.Controllers
         // GET: Insuree
         public ActionResult Index()
         {
-            return View(db.Insurees.ToList());
+            return View();
         }
 
         // GET: Insuree/Details/5
@@ -46,8 +46,20 @@ namespace CarInsurance.Controllers
         // more details see https://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Create([Bind(Include = "Id,FirstName,LastName,EmailAddress,DateOfBirth,CarYear,CarMake,CarModel,DUI,SpeedingTickets,CoverageType,Quote")] Insuree insuree)
+        public ActionResult Create([Bind(Include = "Id,FirstName, LastName, EmailAddress, DateOfBirth, CarYear, CarMake, CarModel, DUI, SpeedingTickets, CoverageType")] Insuree insuree)
         {
+            QuoteCalculate quoteCalc = new QuoteCalculate();
+
+            //Calculate and return the fee associated with each given Insurance scenario. 
+            quoteCalc.ageFeeCalculation(insuree.DateOfBirth);
+            quoteCalc.checkVehicle(insuree.CarYear, insuree.CarModel, insuree.CarMake);
+            quoteCalc.speedTicketCalc(insuree.SpeedingTickets);
+            quoteCalc.calcDUI(insuree.DUI);
+            quoteCalc.fullCoverageCalc(insuree.CoverageType);
+
+            insuree.Quote = quoteCalc.monthlyTotal;
+
+                                 
             if (ModelState.IsValid)
             {
                 db.Insurees.Add(insuree);
@@ -59,6 +71,11 @@ namespace CarInsurance.Controllers
 
             return View(insuree);
         }
+        [HttpGet]
+        public ActionResult Admin()
+        {
+            return View(db.Insurees.ToList());
+        }       
 
         // GET: Insuree/Edit/5
         public ActionResult Edit(int? id)
@@ -90,6 +107,8 @@ namespace CarInsurance.Controllers
             }
             return View(insuree);
         }
+
+       
 
         // GET: Insuree/Delete/5
         public ActionResult Delete(int? id)
